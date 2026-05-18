@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cookiebot Banner — rem Font-Size Test</title>
+
+  <!-- Cookiebot banner script (dev environment) -->
+  <script
+    id="Cookiebot"
+    src="https://dev-consent-cookiebot-com.cookiebot.dev/uc.js"
+    data-cbid="5d0450b1-716d-4cf5-b0b1-d11523ff6b37"
+    data-blockingmode="auto"
+    type="text/javascript"
+    data-culture="en"></script>
+
+  <style>
+    /*
+     * EUD-6102 test scenario.
+     * `rem` is resolved against the ROOT <html> element only — never <body>.
+     * This rule is what the fix in cookiebotstaticbase.js#displaydialog() must neutralise.
+     * Default value mimics Shopify themes: html { font-size: 62.5% } => 1rem = 10px.
+     */
+    html { font-size: 62.5%; }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 880px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f8fafc;
+      color: #1e293b;
+      font-size: 16px; /* page UI is pinned in px so it stays readable while we change html */
+    }
+    h1 { margin: 0 0 4px; font-size: 22px; }
+    .subtitle { color: #64748b; margin-bottom: 20px; font-size: 14px; }
+    .site-badge {
+      background: #0f766e; color: #fff; padding: 6px 14px; border-radius: 20px;
+      font-size: 13px; font-weight: 600; display: inline-block; margin-bottom: 12px;
+    }
+    .card {
+      background: #fff; border: 1px solid #e2e8f0; padding: 20px; border-radius: 10px;
+      margin: 14px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .card h3 { margin: 0 0 14px; font-size: 15px; color: #374151; }
+    .card p { font-size: 14px; line-height: 1.5; color: #475569; }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 6px 0; }
+    button {
+      background: #0f766e; color: #fff; border: none; padding: 9px 16px;
+      border-radius: 7px; cursor: pointer; font-size: 14px; font-weight: 500;
+      transition: background 0.2s;
+    }
+    button:hover { background: #0d5e57; }
+    button.secondary { background: #6b7280; }
+    button.secondary:hover { background: #4b5563; }
+    button.danger { background: #ef4444; }
+    button.danger:hover { background: #dc2626; }
+    button.active { outline: 3px solid #99f6e4; }
+
+    .label { font-size: 12px; font-weight: 600; color: #64748b; text-transform: uppercase; letter-spacing: 0.4px; margin: 14px 0 6px; }
+    input[type="text"] {
+      padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 14px; width: 110px;
+    }
+
+    /* Live measurement readout */
+    .readout { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+    .metric {
+      background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px 14px;
+    }
+    .metric .name { font-size: 12px; color: #64748b; font-weight: 600; }
+    .metric .val { font-size: 20px; font-weight: 700; color: #0f172a; margin-top: 4px; font-variant-numeric: tabular-nums; }
+
+    .verdict {
+      margin-top: 14px; padding: 14px 18px; border-radius: 8px;
+      font-size: 16px; font-weight: 700; text-align: center;
+    }
+    .verdict.pass { background: #dcfce7; color: #166534; border: 1px solid #86efac; }
+    .verdict.fail { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+    .verdict.idle { background: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid #e2e8f0; }
+    th { color: #64748b; font-weight: 600; }
+    td code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+
+    ol.checklist { font-size: 13px; line-height: 1.7; color: #475569; padding-left: 20px; margin: 4px 0; }
+    ol.checklist code { background: #f1f5f9; padding: 1px 5px; border-radius: 4px; }
+
+    .hint { font-size: 12px; color: #94a3b8; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="site-badge">EUD-6102 · rem-based banner font-size</div>
+  <h1>Cookiebot Banner — Font-Size Test</h1>
+  <p class="subtitle">
+    Verifies the banner stays at <strong>15px</strong> base font-size regardless of the host
+    page's <code>&lt;html&gt;</code> font-size (Shopify-theme scenario).
+  </p>
+
+  <!-- 1. Host <html> font-size control -->
+  <div class="card">
+    <h3>1 · Host page <code>&lt;html&gt;</code> font-size</h3>
+    <p>
+      <code>rem</code> resolves against the root <code>&lt;html&gt;</code> element only.
+      Pick a value, the banner is re-opened so <code>displaydialog()</code> re-measures.
+    </p>
+    <div class="actions" id="htmlBtns">
+      <button data-fs="62.5%">62.5% (10px) — Shopify</button>
+      <button data-fs="50%">50% (8px)</button>
+      <button data-fs="100%">100% (16px) — default</button>
+      <button data-fs="150%">150% (24px)</button>
+      <button data-fs="200%">200% (32px)</button>
+    </div>
+    <div class="actions">
+      <input type="text" id="customFs" placeholder="e.g. 10px" />
+      <button class="secondary" id="applyCustom">Apply custom</button>
+    </div>
+
+    <div class="label">Regression control — <code>&lt;body&gt;</code> font-size (must NOT affect banner)</div>
+    <div class="actions" id="bodyBtns">
+      <button class="secondary" data-bfs="">none</button>
+      <button class="secondary" data-bfs="2rem">body = 2rem</button>
+      <button class="secondary" data-bfs="40px">body = 40px</button>
+    </div>
+    <p class="hint">Changing <code>&lt;body&gt;</code> font-size is the mistake to avoid — it changes
+      <code>em</code>, not <code>rem</code>, so it never exercises the fix.</p>
+  </div>
+
+  <!-- 2. Live measurement -->
+  <div class="card">
+    <h3>2 · Live measurement</h3>
+    <div class="actions">
+      <button id="renewBtn">Open / renew banner</button>
+      <button class="secondary" id="measureBtn">Re-measure</button>
+      <button class="danger" id="resetBtn">Reset consent cookie</button>
+    </div>
+    <div class="readout">
+      <div class="metric"><div class="name">&lt;html&gt; font-size</div><div class="val" id="mHtml">—</div></div>
+      <div class="metric"><div class="name">1rem resolves to</div><div class="val" id="mRem">—</div></div>
+      <div class="metric"><div class="name">#CybotCookiebotDialog font-size</div><div class="val" id="mDialog">—</div></div>
+      <div class="metric"><div class="name">Expected</div><div class="val">15px</div></div>
+    </div>
+    <div class="verdict idle" id="verdict">Open the banner to run the check.</div>
+    <p class="hint">Tolerance ±0.5px. The dialog font-size is set inline by
+      <code>displaydialog()</code> at render time, so always re-open after changing <code>&lt;html&gt;</code>.</p>
+  </div>
+
+  <!-- 3. Expected results -->
+  <div class="card">
+    <h3>3 · Expected results</h3>
+    <table>
+      <thead>
+        <tr><th>html font-size</th><th>1rem</th><th>Buggy (0.9375rem)</th><th>Fixed</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>62.5%</code></td><td>10px</td><td>9.375px ❌</td><td>15px ✅</td></tr>
+        <tr><td><code>50%</code></td><td>8px</td><td>7.5px ❌</td><td>15px ✅</td></tr>
+        <tr><td><code>100%</code></td><td>16px</td><td>15px ✅</td><td>15px ✅</td></tr>
+        <tr><td><code>150%</code></td><td>24px</td><td>22.5px ❌</td><td>15px ✅</td></tr>
+        <tr><td><code>200%</code></td><td>32px</td><td>30px ❌</td><td>15px ✅</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 4. Regression checklist -->
+  <div class="card">
+    <h3>4 · Regression checklist</h3>
+    <ol class="checklist">
+      <li>All <code>&lt;html&gt;</code> values above resolve the dialog to 15px.</li>
+      <li>Default page (100%) — nothing changed vs. previous behaviour.</li>
+      <li><code>&lt;body&gt;</code> override does NOT change the banner size.</li>
+      <li>All banner templates: Swift, Elemental, US "Do not sell".</li>
+      <li>Custom banners — inline font-size pin does not break intended sizing.</li>
+      <li>Re-open dialog several times — no flicker / size reset.</li>
+      <li>Widget and cookie declaration unaffected.</li>
+      <li>Old cached <code>banner.css</code> + new <code>cc.js</code> still 15px.</li>
+      <li>Inner elements (buttons, headings, tabs) scale proportionally.</li>
+      <li>Browser minimum-font-size setting / page zoom.</li>
+    </ol>
+  </div>
+
+  <script>
+    const DIALOG_ID = 'CybotCookiebotDialog';
+    const EXPECTED = 15;
+    const TOLERANCE = 0.5;
+
+    const $ = (id) => document.getElementById(id);
+
+    /** Root <html> font-size in px. */
+    function rootFontPx() {
+      return parseFloat(getComputedStyle(document.documentElement).fontSize);
+    }
+
+    /** What 1rem currently resolves to — same technique as the fix. */
+    function oneRemPx() {
+      const el = document.createElement('div');
+      el.style.cssText = 'position:absolute;width:100rem;visibility:hidden;pointer-events:none;';
+      document.body.appendChild(el);
+      const px = el.getBoundingClientRect().width / 100;
+      el.remove();
+      return px;
+    }
+
+    /** Computed font-size of the rendered banner dialog, or null if not on the page. */
+    function dialogFontPx() {
+      const d = document.getElementById(DIALOG_ID);
+      if (!d) return null;
+      return parseFloat(getComputedStyle(d).fontSize);
+    }
+
+    function measure() {
+      const rem = oneRemPx();
+      const dialog = dialogFontPx();
+
+      $('mHtml').textContent = rootFontPx().toFixed(2) + 'px';
+      $('mRem').textContent = rem.toFixed(3) + 'px';
+
+      const verdict = $('verdict');
+      if (dialog === null) {
+        $('mDialog').textContent = '—';
+        verdict.className = 'verdict idle';
+        verdict.textContent = 'Banner not rendered — open / renew it, or reset the consent cookie.';
+        return;
+      }
+
+      $('mDialog').textContent = dialog.toFixed(3) + 'px';
+      const ok = Math.abs(dialog - EXPECTED) <= TOLERANCE;
+      verdict.className = 'verdict ' + (ok ? 'pass' : 'fail');
+      verdict.textContent = ok
+        ? 'PASS — dialog font-size is ' + dialog.toFixed(2) + 'px (≈ 15px).'
+        : 'FAIL — dialog font-size is ' + dialog.toFixed(2) + 'px, expected 15px.';
+    }
+
+    /** Re-open the banner so displaydialog() re-runs the rem measurement. */
+    function renewBanner() {
+      if (window.Cookiebot && typeof window.Cookiebot.renew === 'function') {
+        window.Cookiebot.renew();
+      } else if (window.Cookiebot && typeof window.Cookiebot.show === 'function') {
+        window.Cookiebot.show();
+      }
+      setTimeout(measure, 200);
+    }
+
+    function setHtmlFontSize(value) {
+      document.documentElement.style.fontSize = value;
+      document.querySelectorAll('#htmlBtns button').forEach((b) =>
+        b.classList.toggle('active', b.dataset.fs === value));
+      renewBanner();
+    }
+
+    function setBodyFontSize(value) {
+      if (value) document.body.style.fontSize = value;
+      else document.body.style.removeProperty('font-size');
+      document.querySelectorAll('#bodyBtns button').forEach((b) =>
+        b.classList.toggle('active', b.dataset.bfs === value));
+      // body font-size must not matter — re-measure without renewing to prove it.
+      measure();
+    }
+
+    function resetConsent() {
+      document.cookie = 'CookieConsent=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/';
+      renewBanner();
+    }
+
+    // --- wiring ------------------------------------------------------------
+    document.querySelectorAll('#htmlBtns button').forEach((b) =>
+      b.addEventListener('click', () => setHtmlFontSize(b.dataset.fs)));
+
+    document.querySelectorAll('#bodyBtns button').forEach((b) =>
+      b.addEventListener('click', () => setBodyFontSize(b.dataset.bfs)));
+
+    $('applyCustom').addEventListener('click', () => {
+      const v = $('customFs').value.trim();
+      if (v) setHtmlFontSize(v);
+    });
+    $('renewBtn').addEventListener('click', renewBanner);
+    $('measureBtn').addEventListener('click', measure);
+    $('resetBtn').addEventListener('click', resetConsent);
+
+    // Auto-measure whenever the banner finishes rendering.
+    window.addEventListener('CookiebotOnDialogDisplay', () => setTimeout(measure, 80));
+    window.addEventListener('CookiebotOnLoad', () => setTimeout(measure, 150));
+
+    // Reflect the initial html value (set in <style> above).
+    document.querySelectorAll('#htmlBtns button').forEach((b) =>
+      b.classList.toggle('active', b.dataset.fs === '62.5%'));
+    setTimeout(measure, 1200);
+  </script>
+</body>
+</html>
